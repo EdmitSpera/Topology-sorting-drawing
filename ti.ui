@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>917</width>
-    <height>702</height>
+    <width>861</width>
+    <height>667</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -29,35 +29,41 @@
    <property name="accessibleName">
     <string/>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="4,1">
+      <property name="spacing">
+       <number>0</number>
+      </property>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,3">
+       <layout class="QVBoxLayout" name="verticalLayout" stretch="2,0">
+        <property name="spacing">
+         <number>6</number>
+        </property>
         <item>
          <widget class="QPlainTextEdit" name="plainTextEdit">
-          <property name="documentTitle">
-           <string/>
-          </property>
-          <property name="plainText">
-           <string/>
-          </property>
           <property name="placeholderText">
            <string>请输入数据，格式如&lt;a,b&gt;,&lt;b,c&gt;</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="plainTextEdit_2">
-          <property name="readOnly">
-           <bool>false</bool>
-          </property>
-         </widget>
+         <widget class="QTextEdit" name="textEdit"/>
         </item>
        </layout>
       </item>
       <item>
-       <widget class="QGraphicsView" name="graphicsView"/>
+       <widget class="QWidget" name="widget" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -71,7 +77,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>917</width>
+     <width>861</width>
      <height>21</height>
     </rect>
    </property>
