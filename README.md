@@ -20,13 +20,15 @@
 
 1. 安装所需的Python依赖项，可以使用以下命令：
 
-python GraphVisualizationApp.py
-
+```
+    python GraphVisualizationApp.py
+```
 
 2. 执行以下命令运行应用程序：
 
-python GraphVisualizationApp.py
-
+```
+    python GraphVisualizationApp.py
+```
 
 3. 应用程序窗口将出现，您可以在其中进行以下操作：
 
