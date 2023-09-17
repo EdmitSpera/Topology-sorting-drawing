@@ -122,6 +122,11 @@
     </property>
     <addaction name="actionTopological_Sorting"/>
     <addaction name="actiongraph_2"/>
+    <addaction name="actionweighted_graph"/>
+    <addaction name="actionSpectral_Layout"/>
+    <addaction name="actionKamada_Kawai_Layout"/>
+    <addaction name="actionCircular_Layout"/>
+    <addaction name="actionSpringlayout"/>
    </widget>
    <widget class="QMenu" name="Help">
     <property name="title">
@@ -184,6 +189,31 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionweighted_graph">
+   <property name="text">
+    <string>weighted graph</string>
+   </property>
+  </action>
+  <action name="actionSpectral_Layout">
+   <property name="text">
+    <string>Spectral Layout</string>
+   </property>
+  </action>
+  <action name="actionKamada_Kawai_Layout">
+   <property name="text">
+    <string>Kamada-Kawai Layout</string>
+   </property>
+  </action>
+  <action name="actionCircular_Layout">
+   <property name="text">
+    <string>Circular Layout</string>
+   </property>
+  </action>
+  <action name="actionSpringlayout">
+   <property name="text">
+    <string>Spring layout</string>
    </property>
   </action>
  </widget>
