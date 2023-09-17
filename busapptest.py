@@ -1,3 +1,4 @@
+# 导入必要的库
 import numpy as np
 import sys
 import threading
@@ -6,61 +7,75 @@ import matplotlib.pyplot as plt
 import re
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
+
+# 导入PySide2库中的相关模块
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTextEdit
-from PySide2.QtUiTools import loadUiType  # 导入用于加载UI文件的函数
+from PySide2.QtUiTools import loadUiType  # 用于加载UI文件的函数
 from PySide2.QtCore import QFile, QTextStream
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
+# 创建一个Qt应用程序
 class GraphVisualizationApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
         # 加载UI文件
-        self.ui = loadUiType("busapp.ui")[0]()
+        self.ui = loadUiType("busapp.ui")[0]()  # 这里加载了一个UI文件
         self.ui.setupUi(self)
 
         # 初始化图像生成状态变量
         self.graphGenerated = False
 
-        self.G = None
+        self.G = None  # 用于存储图的变量
 
         # 创建matplotlib视图和图形canvas
-        self.graphView = plt.figure()
-        self.graphCanvas = FigureCanvas(self.graphView)
-        #
+        self.graphView = plt.figure()  # 创建Matplotlib视图
+        self.graphCanvas = FigureCanvas(self.graphView)  # 创建Matplotlib图形的Canvas
+
         # 将canvas添加到ui布局中
         self.ui.horizontalLayout.addWidget(self.graphCanvas)
 
-        # 创建QPlainTextEdit对象
+        # 创建QPlainTextEdit对象，用于文本输入和显示
         self.textEdit = QTextEdit()
         self.textEdit.setReadOnly(True)
 
-        # 链接ui菜单栏
-        self.ui.actionOpenj.triggered.connect(self.importData)
-        self.ui.actiongraph.triggered.connect(self.saveGraph)
-        self.ui.actiongraph_2.triggered.connect(self.generateGraph)
-        self.ui.actionHelp_window.triggered.connect(self.help)
-        self.ui.actionExit.triggered.connect(self.close_window)
-        self.ui.actionTopological_Sorting.triggered.connect(self.exportResults)
-        self.ui.actionweighted_graph.triggered.connect(self.weightedGraph)
-    def generate_Graph(self):
-        graph_thread = threading.Thread(target=self.generateGraph)
-        graph_thread.start()
+        # 链接ui菜单栏中的各个操作到相应的方法
+        self.ui.actionOpenj.triggered.connect(self.importData)  # 导入数据
+        self.ui.actiongraph.triggered.connect(self.saveGraph)  # 保存图像
+        self.ui.actiongraph_2.triggered.connect(self.generateGraph)  # 生成图
+        self.ui.actionHelp_window.triggered.connect(self.help)  # 显示帮助窗口
+        self.ui.actionExit.triggered.connect(self.close_window)  # 退出应用
+        self.ui.actionTopological_Sorting.triggered.connect(self.exportResults)  # 导出结果
+        self.ui.actionweighted_graph.triggered.connect(self.weightedGraph)  # 导入带权图数据
 
+    # 生成图像的主方法
     def generateGraph(self):
         # 获取文本框中的输入，每行定义一个关系，格式为 "<a,b>"
         input_text = self.ui.plainTextEdit.toPlainText()
-        input_text = input_text.replace('<', '').replace('>', '')  # 去掉尖括号
+
+        # 使用正则表达式匹配输入格式
+        pattern = r'<(\w+),(\w+)>|《(\w+),(\w+)》'
+        matches = re.findall(pattern, input_text)
+
         edges = []
-        for line in input_text.split('\n'):
-            if line.strip():
-                if ',' in line:
-                    a, b = line.strip().split(',')
-                    edges.append((a.strip(), b.strip()))
-                else:
-                    # 输入不符合规范，显示错误提示
-                    QMessageBox.warning(self, "警告", "请输入正确的格式，例如：<a,b>", QMessageBox.Ok)
-                    return
+
+        # 判断是否匹配到任何数据
+        if not matches:
+            QMessageBox.warning(self, "错误", "请添加正确格式的数据，例如：<a,b>", QMessageBox.Ok)
+            return
+
+        # 遍历匹配结果
+        for match in matches:
+            a, b, c, d = match
+            if a:  # 使用尖括号的情况
+                edges.append((a.strip(), b.strip()))
+            elif c:  # 使用双尖括号的情况
+                edges.append((c.strip(), d.strip()))
+            else:
+                # 输入不符合规范，显示错误提示
+                QMessageBox.warning(self, "错误", "请添加正确格式的数据，例如：<a,b>", QMessageBox.Ok)
+                return
+        
         # 创建有向图
         G = nx.DiGraph()
         G.add_edges_from(edges)
@@ -68,7 +83,7 @@ class GraphVisualizationApp(QMainWindow):
         # 检查是否存在依赖关系
         if not nx.is_directed_acyclic_graph(G):
             # 存在依赖关系，显示错误提示
-            QMessageBox.warning(self, "警告", "输入的数据存在依赖关系", QMessageBox.Ok)
+            QMessageBox.warning(self, "错误", "输入的数据存在依赖关系", QMessageBox.Ok)
             return
 
         pos = nx.circular_layout(G)  # 默认使用spring_layout布局
@@ -91,20 +106,16 @@ class GraphVisualizationApp(QMainWindow):
         print("所有拓扑排序结果:")
         for topo_order in all_topo_orders:
            print(topo_order)
-        #
-        # # print("排序结果：")
-        # result_text = "\n".join(["->".join(order) for order in all_topo_orders])
-        # # self.ui.textEdit.setPlainText(result_text)
-        # # print(result_text)
         return  all_topo_orders
-    # ----------------------------------------------------------------------------------------------------------------------
-    def floyd_shortest_paths(self,start_vertex):
+
+    # Floyd最短路径算法
+    def floyd_shortest_paths(self, start_vertex):
         if not self.graphGenerated:
-            QMessageBox.warning(self, "警告", "您未生成任何图像", QMessageBox.Ok)
+            QMessageBox.warning(self, "错误", "您未生成任何图像", QMessageBox.Ok)
             return
 
         if self.G is None:
-            QMessageBox.warning(self, "警告", "带权图为空，请先导入带权图数据", QMessageBox.Ok)
+            QMessageBox.warning(self, "错误", "带权图为空，请先导入带权图数据", QMessageBox.Ok)
             return
 
         # 获取所有顶点列表
@@ -130,7 +141,7 @@ class GraphVisualizationApp(QMainWindow):
                     if distance_matrix[i][k] + distance_matrix[k][j] < distance_matrix[i][j]:
                         distance_matrix[i][j] = distance_matrix[i][k] + distance_matrix[k][j]
 
-            # 打印最短路径
+        # 打印最短路径
         print("从顶点 '{}' 出发的最短路径：".format(start_vertex))
         for i in range(num_nodes):
             if index_to_node[i] != start_vertex:
@@ -140,23 +151,33 @@ class GraphVisualizationApp(QMainWindow):
                 else:
                     print("到顶点 '{}' 的最短路径为：{}".format(index_to_node[i], shortest_path))
 
-
+    # 导入带权图数据
     def weightedGraph(self):
-        # 获取文本框中的输入，每行定义一个带权边，格式为 "<a,b,c>"
+        # 获取文本框中的输入，每行定义一个带权边，格式为 "<a,b,1>"
         # a和b为顶点，c为ab边的权重
         input_text = self.ui.plainTextEdit.toPlainText()
         weighted_edges = []
-        for line in input_text.split('\n'):
-            if line.strip():
-                # 使用正则表达式提取带权边信息
-                match = re.match(r'<(\w+),(\w+),(\d+)>', line.strip())
-                if match:
-                    a, b, weight = match.groups()
-                    weighted_edges.append((a.strip(), b.strip(), int(weight)))
-                else:
-                    # 输入不符合规范，显示错误提示
-                    QMessageBox.warning(self, "警告", "请输入正确的格式，例如：<a,b,c>", QMessageBox.Ok)
-                    return
+    
+        # 使用正则表达式匹配输入格式
+        pattern = r'<(\w+),(\w+),(\d+)>|《(\w+),(\w+),(\d+)》'
+        matches = re.findall(pattern, input_text)
+    
+        # 判断是否匹配到任何数据
+        if not matches:
+            QMessageBox.warning(self, "错误", "请添加正确格式的数据，例如：<a,b,1>", QMessageBox.Ok)
+            return
+    
+        # 遍历匹配结果
+        for match in matches:
+            a, b, c, d, e, f = match
+            if a:  # 使用尖括号的情况
+                weighted_edges.append((a.strip(), b.strip(), int(c)))
+            elif d:  # 使用双尖括号的情况
+                weighted_edges.append((d.strip(), e.strip(), int(f)))
+            else:
+                # 输入不符合规范，显示错误提示
+                QMessageBox.warning(self, "错误", "请添加正确格式的数据，例如：<a,b,1>", QMessageBox.Ok)
+                return
 
         # 创建带权有向图
         self.G = nx.DiGraph()
@@ -180,6 +201,7 @@ class GraphVisualizationApp(QMainWindow):
 
         self.generateOptimalRoute()
 
+    # 生成最优路线
     def generateOptimalRoute(self):
         # 在这里实现生成最优路线的功能
         # 使用图算法（如最短路径算法）计算最优路线
@@ -187,22 +209,23 @@ class GraphVisualizationApp(QMainWindow):
         # 假设起始点为start_vertex，可以根据实际情况修改
         start_vertex = self.ui.textEdit.toPlainText()
         if not self.graphGenerated:
-            QMessageBox.warning(self, "警告", "您未生成任何图像", QMessageBox.Ok)
+            QMessageBox.warning(self, "错误", "您未生成任何图像", QMessageBox.Ok)
             return
 
         if not start_vertex:
-            QMessageBox.warning(self, "警告", "请输入起始点", QMessageBox.Ok)
+            QMessageBox.warning(self, "错误", "请输入起始点", QMessageBox.Ok)
 
         if self.G is None:
-            QMessageBox.warning(self, "警告", "带权图为空，请先导入带权图数据", QMessageBox.Ok)
+            QMessageBox.warning(self, "错误", "带权图为空，请先导入带权图数据", QMessageBox.Ok)
             return
 
         self.floyd_shortest_paths(start_vertex)
 
+    # 保存生成的图像
     def saveGraph(self):
         if not self.graphGenerated:
             # 如果没有生成图像，显示弹出窗口提示
-            QMessageBox.warning(self, "警告", "您未生成任何图像", QMessageBox.Ok)
+            QMessageBox.warning(self, "错误", "您未生成任何图像", QMessageBox.Ok)
             return
 
         # 弹出文件对话框，允许用户选择保存图像的路径和文件名
@@ -212,10 +235,11 @@ class GraphVisualizationApp(QMainWindow):
             # 保存图像到指定路径
             self.graphView.savefig(file_path, format='png')
 
-    def exportResults(self,result_text):
+    # 导出结果到文本文件
+    def exportResults(self, result_text):
         if not self.graphGenerated:
             # 如果没有生成图像，显示弹出窗口提示
-            QMessageBox.warning(self, "警告", "您未生成任何图像", QMessageBox.Ok)
+            QMessageBox.warning(self, "错误", "您未生成任何图像", QMessageBox.Ok)
             return
 
         all_topo_orders = self.generateGraph()
@@ -233,6 +257,7 @@ class GraphVisualizationApp(QMainWindow):
             except Exception as e:
                 QMessageBox.warning(self, "错误", "导出结果时出现错误：" + str(e), QMessageBox.Ok)
 
+    # 导入数据文件
     def importData(self):
         # 弹出文件对话框，允许用户自行选择要导入的本地文本文件
         file_dialog = QFileDialog()
@@ -241,16 +266,17 @@ class GraphVisualizationApp(QMainWindow):
         if file_path:
             # 读取文件内容
             file = QFile(file_path)
-            # with open(file_path, 'r', encoding='utf-8') as f:
-            #     self.dataTextEdit.setText(f.read())
             if file.open(QFile.ReadOnly | QFile.Text):
                 stream = QTextStream(file)
                 self.ui.plainTextEdit.setPlainText(stream.readAll())
                 file.close()
+
+    # 显示帮助信息
     def help(self):
         # 弹出帮助文档
         QMessageBox.about(self, 'Help', '在文本编辑框中按要求输入多个邻近站点名称\n点击generate生成结果\n可在菜单栏中导入数据txt')
 
+    # 关闭应用程序
     def close_window(self):
         # 创建一个确认退出的消息框
         reply = QMessageBox.question(self, "确认退出", "确定要退出吗？", QMessageBox.Yes | QMessageBox.No,
