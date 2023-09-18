@@ -6,6 +6,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import re
 import warnings
+import os
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -298,12 +299,6 @@ class GraphVisualizationApp(QMainWindow):
                 self.ui.plainTextEdit.setPlainText(stream.readAll())
                 file.close()
 
-    # 显示帮助信息
-    def help(self):
-        # 弹出帮助文档
-        QMessageBox.about(self, 'Help',
-                          '在文本编辑框中按要求输入多个邻近站点名称\n点击generate生成结果\n可在菜单栏中导入数据txt')
-
     # 关闭应用程序
     def close_window(self):
         # 创建一个确认退出的消息框
@@ -313,6 +308,20 @@ class GraphVisualizationApp(QMainWindow):
         # 如果用户选择是（Yes），则关闭窗口
         if reply == QMessageBox.Yes:
             self.close()
+            
+    # 在GraphVisualizationApp类中添加新的help方法
+    def help(self):
+        # 定义README文件的路径
+        readme_file_path = "README.txt"
+
+        # 检查README文件是否存在
+        if os.path.exists(readme_file_path):
+            try:
+                os.system("start notepad " + readme_file_path)
+            except Exception as e:
+                QMessageBox.warning(self, "错误", "无法打开README文件：" + str(e), QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "错误", "README文件不存在,请检查当前目录是否有README.txt文件", QMessageBox.Ok)
 
 
 if __name__ == '__main__':
