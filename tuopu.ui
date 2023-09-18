@@ -136,11 +136,13 @@
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionReadme"/>
    </widget>
    <widget class="QMenu" name="menuExit">
     <property name="title">
      <string>Exit</string>
     </property>
+    <addaction name="actionProgram_Exit"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuGenerate"/>
@@ -170,6 +172,16 @@
   <action name="actionGraph">
    <property name="text">
     <string>Graph</string>
+   </property>
+  </action>
+  <action name="actionReadme">
+   <property name="text">
+    <string>README</string>
+   </property>
+  </action>
+  <action name="actionProgram_Exit">
+   <property name="text">
+    <string>Program Exit</string>
    </property>
   </action>
  </widget>
