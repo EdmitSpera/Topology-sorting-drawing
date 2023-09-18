@@ -22,7 +22,7 @@
         <item>
          <widget class="QPlainTextEdit" name="plainTextEdit">
           <property name="placeholderText">
-           <string>请输入数据，示例为&lt;a,b&gt;。若要求出两点间最短路径，则输入&lt;a,b,2&gt;类型的数据</string>
+           <string>若生成无权图，请输入&lt;a,b&gt;,&lt;c,d&gt;类型的数据；若生成有权图，请输入&lt;a,b,3&gt;类型的数据，并在最下方框内输入起始点</string>
           </property>
          </widget>
         </item>
