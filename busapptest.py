@@ -28,6 +28,7 @@ class GraphVisualizationApp(QMainWindow):
 
         self.G = None  # 用于存储图的变量
 
+        plt.rcParams['font.sans-serif'] = ['Microsoft YaHei'] # 使用微软雅黑或其他中文字体
         # 创建matplotlib视图和图形canvas
         self.graphView = plt.figure()  # 创建Matplotlib视图
         self.graphCanvas = FigureCanvas(self.graphView)  # 创建Matplotlib图形的Canvas
