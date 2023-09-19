@@ -101,8 +101,8 @@ class GraphVisualizationApp(QMainWindow):
         layout_option = self.ui.comboBox.currentText()
         if layout_option == "Spectral Layout":
             pos = nx.spectral_layout(G)
-        elif layout_option == "Kamada-Kawai Layout":
-            pos = nx.kamada_kawai_layout(G)
+        elif layout_option == "Shell Layout":
+            pos = nx.shell_layout(G)
         elif layout_option == "Circular Layout":
             pos = nx.circular_layout(G)
         else:
